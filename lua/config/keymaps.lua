@@ -43,8 +43,7 @@ vim.keymap.set("n", "<leader>clr", function()
 end, { desc = "Restart buffer Lsp" })
 
 vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })
-vim.keymap.set({ "n" }, "<leader>D", ":DBUIToggle<CR>", { silent = true })
-vim.keymap.set({ "n" }, "<leader>S", "<plug>(DBUI_ExecuteQuery)", { silent = false, desc = "Execute Query" })
+vim.keymap.set({ "n" }, "<leader>S", ":SqlsExecuteQuery<CR>", { silent = false, desc = "Execute Query" })
 
 -- DAP (Debug Adapter Protocol) keybindings
 vim.keymap.set("n", "<leader>db", "<cmd>DapToggleBreakpoint<CR>", { desc = "Toggle Breakpoint" })

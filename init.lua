@@ -59,10 +59,6 @@ require("comfy-line-numbers").setup({
   },
 })
 
-vim.lsp.config("autohotkey_lsp", {
-  cmd = { "node", "/home/havok/bin/lsp/ahk/server/dist/server.js", "--stdio" },
-})
-
 vim.lsp.config("rust_analyzer", {
   settings = {
     ["rust-analyzer"] = {
@@ -82,6 +78,7 @@ vim.lsp.config("zls", {
 -- Vim LSP configs
 vim.lsp.config("lua_ls", {
   cmd = { "lua-language-server" },
+  filetypes = { "lua" },
   settings = {
     Lua = {
       runtime = {
@@ -187,66 +184,34 @@ vim.lsp.config("elixirls", {
 vim.lsp.config("denols", {})
 vim.lsp.config("ts_ls", {})
 
--- Configure sqls for SQL with database-aware completion
-vim.lsp.config("sqls", {
-  cmd = { "sqls" },
-  filetypes = { "sql", "mysql", "plsql" },
-  settings = {
-    sqls = {
-      connections = {
-        -- Connections will be loaded from .sqls/config.yml in project root
-        -- This allows per-project database configuration
-      },
-    },
-  },
-  on_attach = function(client, bufnr)
-    -- Disable sqls formatting capability (use conform.nvim with sql-formatter instead)
-    client.server_capabilities.documentFormattingProvider = false
-    client.server_capabilities.documentRangeFormattingProvider = false
-    
-    -- Setup sqls.nvim for additional commands
-    require("sqls").on_attach(client, bufnr)
-  end,
+-- Configure protols for Protocol Buffers
+vim.lsp.config("protols", {
+  cmd = { "protols" },
+  filetypes = { "proto" },
 })
 
--- -- Configure yamlls
--- vim.lsp.config("yamlls", {
---   cmd = { "yaml-language-server", "--stdio" },
---   filetypes = { "yaml", "yml" },
+-- Disable the built-in SQL completion keymaps that use <C-c>
+vim.g.omni_sql_no_default_maps = 1
+
+-- Configure sqls for SQL with database-aware completion
+-- vim.lsp.config("sqls", {
+--   cmd = { "sqls" },
+--   filetypes = { "sql", "mysql", "plsql" },
 --   settings = {
---     yaml = {
---       schemas = {
---         -- Kubernetes schemas
---         ["https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/master/v1.18.0/all.json"] = {
---           "/*k8s*.yaml",
---           "/*k8s*.yml",
---           "k8s/*.yaml",
---           "k8s/*.yml",
---         },
---         -- Helm Chart.yaml schema
---         ["https://json.schemastore.org/chart.json"] = {
---           "**/Chart.yaml",
---         },
---         -- Helm values.yaml schema (if available)
---         ["https://json.schemastore.org/helm-values.json"] = {
---           "**/values.yaml",
---         },
---       },
---       -- Enable format on save
---       format = {
---         enable = true,
---       },
---       -- Validation settings
---       validate = true,
---       completion = true,
---       hover = true,
---       -- Custom tags for Helm templates
---       customTags = {
---
+--     sqls = {
+--       connections = {
+--         -- Connections will be loaded from .sqls/config.yml in project root
+--         -- This allows per-project database configuration
 --       },
 --     },
 --   },
---   single_file_support = true,
+--   on_attach = function(client, bufnr)
+--     -- Disable sqls formatting capability (use conform.nvim with sql-formatter instead)
+--     client.server_capabilities.documentFormattingProvider = false
+--     client.server_capabilities.documentRangeFormattingProvider = false
+--
+--     require("sqls").on_attach(client, bufnr)
+--   end,
 -- })
 
 -- Vim LSP enable
@@ -262,7 +227,6 @@ vim.lsp.enable("elixirls", true)
 vim.lsp.enable("jsonls", true)
 vim.lsp.enable("fish-lsp", true)
 vim.lsp.enable("zls", true)
-vim.lsp.enable("autohotkey_lsp", true)
 vim.lsp.enable("helm_ls", true)
 vim.lsp.enable("rust_analyzer", true)
 vim.lsp.enable("dockerls", true)
@@ -271,7 +235,6 @@ vim.lsp.enable("pyright", true)
 vim.lsp.enable("protols", true)
 vim.lsp.enable("clangd", true)
 vim.lsp.enable("dartls", true)
-vim.lsp.enable("sqls", true)
 
 function _G.print_to_buffer(data)
   vim.cmd("new")

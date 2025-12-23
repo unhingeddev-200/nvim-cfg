@@ -26,15 +26,15 @@ local print_to_buf = function(txt, buf)
 
   -- Window options
   local opts = {
-    relative = 'editor',
+    relative = "editor",
     width = width,
     height = (height > 0) and height or 1,
     row = row,
     col = col,
-    style = 'minimal',
-    border = 'rounded',
-    title = 'Info',
-    title_pos = 'center'
+    style = "minimal",
+    border = "rounded",
+    title = "Info",
+    title_pos = "center",
   }
   local win = vim.api.nvim_open_win(buf, true, opts)
   vim.keymap.set("n", "q", ":close<CR>", { buffer = buf })
@@ -45,7 +45,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
   pattern = "*",
   callback = function()
     vim.keymap.set({ "n", "v", "i" }, "<C-l>", "<CR>", { buffer = false, remap = true, silent = true })
-    vim.keymap.set({ "n", "v", "i" }, "<C-c>", "<ESC>", { buffer = false, remap = true, silent = true })
+    vim.keymap.set({ "n", "v", "i" }, "<C-c>", "<ESC>", { buffer = false, remap = false, silent = true })
     vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })
   end,
 })
@@ -64,7 +64,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
   callback = function()
     vim.keymap.set("i", "<C-e>k", ":=")
     pcall(function()
-      vim.cmd('iunmap <C-e>hj')
+      vim.cmd("iunmap <C-e>hj")
     end)
   end,
 })
@@ -116,10 +116,10 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
     vim.lsp.config("sqls", {
       cmd = { "sqls", "-config", matches[1] },
       root_markers = { ".sqls.yaml" },
-      filetypes = { "sql" }
+      filetypes = { "sql" },
     })
     vim.lsp.enable("sqls", true)
-  end
+  end,
 })
 
 -- vim.api.nvim_create_autocmd({ "LspAttach" }, {
@@ -149,7 +149,6 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
 --     vim.system({"sql-formatter","--fix","-l",""})
 --   end
 -- })
-
 
 -- -- LSP keybindings on attach
 -- vim.api.nvim_create_autocmd("LspAttach", {
@@ -182,12 +181,12 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
 --   end,
 -- })
 
-vim.api.nvim_create_autocmd('BufEnter', {
-  pattern = { '*.fish' },
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = { "*.fish" },
   callback = function()
     vim.lsp.start({
-      name = 'fish-lsp',
-      cmd = { 'fish-lsp', 'start' },
+      name = "fish-lsp",
+      cmd = { "fish-lsp", "start" },
     })
   end,
 })
