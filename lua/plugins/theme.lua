@@ -1,0 +1,1 @@
+/home/havok/.config/omarchy/current/theme/neovim.lua
