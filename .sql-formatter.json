@@ -1,0 +1,16 @@
+{
+  "language": "sql",
+  "dialect": "sql",
+  "tabWidth": 2,
+  "useTabs": false,
+  "keywordCase": "upper",
+  "dataTypeCase": "upper",
+  "functionCase": "upper",
+  "identifierCase": "preserve",
+  "indentStyle": "standard",
+  "logicalOperatorNewline": "before",
+  "expressionWidth": 50,
+  "linesBetweenQueries": 2,
+  "denseOperators": false,
+  "newlineBeforeSemicolon": false
+}

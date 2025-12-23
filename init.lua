@@ -187,6 +187,28 @@ vim.lsp.config("elixirls", {
 vim.lsp.config("denols", {})
 vim.lsp.config("ts_ls", {})
 
+-- Configure sqls for SQL with database-aware completion
+vim.lsp.config("sqls", {
+  cmd = { "sqls" },
+  filetypes = { "sql", "mysql", "plsql" },
+  settings = {
+    sqls = {
+      connections = {
+        -- Connections will be loaded from .sqls/config.yml in project root
+        -- This allows per-project database configuration
+      },
+    },
+  },
+  on_attach = function(client, bufnr)
+    -- Disable sqls formatting capability (use conform.nvim with sql-formatter instead)
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+    
+    -- Setup sqls.nvim for additional commands
+    require("sqls").on_attach(client, bufnr)
+  end,
+})
+
 -- -- Configure yamlls
 -- vim.lsp.config("yamlls", {
 --   cmd = { "yaml-language-server", "--stdio" },
@@ -249,6 +271,7 @@ vim.lsp.enable("pyright", true)
 vim.lsp.enable("protols", true)
 vim.lsp.enable("clangd", true)
 vim.lsp.enable("dartls", true)
+vim.lsp.enable("sqls", true)
 
 function _G.print_to_buffer(data)
   vim.cmd("new")
