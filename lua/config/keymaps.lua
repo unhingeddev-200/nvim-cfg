@@ -3,17 +3,14 @@
 -- Add any additional keymaps here
 --
 
-
-
-
 vim.keymap.set("n", "<leader>hk", function()
   require("luasnip.loaders").edit_snippet_files()
 end, { desc = "Edit Snippets" })
 
-vim.keymap.set("n", "<c-x>", function()
+vim.keymap.set("n", "<C-b>", function()
   Snacks.terminal()
 end, {})
-vim.keymap.set("t", "<c-x>", "<cmd>close<cr>", {})
+vim.keymap.set("t", "<c-b>", "<cmd>close<cr>", {})
 
 vim.keymap.del("n", "<leader>e")
 
@@ -23,9 +20,8 @@ vim.keymap.set("n", "<leader>o", "O<C-C>O<C-C>o<C-C>i", { remap = true, silent =
 
 vim.keymap.set("n", "<leader>hj", "p", { desc = "paste" })
 vim.keymap.set("i", "<C-b>", function()
-  vim.api.nvim_paste(vim.fn.getreg('+'), false, -1)
+  vim.api.nvim_paste(vim.fn.getreg("+"), false, -1)
 end, { desc = "paste" })
-
 
 vim.keymap.set("i", "<C-e>a", "_")
 vim.keymap.set("i", "<C-e>d", "<><left>")
@@ -60,7 +56,9 @@ vim.keymap.set("n", "<leader>di", "<cmd>DapStepInto<CR>", { desc = "Step Into" }
 vim.keymap.set("n", "<leader>do", "<cmd>DapStepOver<CR>", { desc = "Step Over" })
 vim.keymap.set("n", "<leader>dO", "<cmd>DapStepOut<CR>", { desc = "Step Out" })
 vim.keymap.set("n", "<leader>dt", "<cmd>DapTerminate<CR>", { desc = "Terminate" })
-vim.keymap.set("n", "<leader>du", function() require("dapui").toggle() end, { desc = "Toggle DAP UI" })
+vim.keymap.set("n", "<leader>du", function()
+  require("dapui").toggle()
+end, { desc = "Toggle DAP UI" })
 vim.keymap.set("n", "<leader>dw", function()
   require("dapui").elements.watches.add(vim.fn.input("Watch expression: "))
 end, { desc = "Add Watch" })
