@@ -81,8 +81,23 @@ vim.lsp.config("zls", {
 
 -- Vim LSP configs
 vim.lsp.config("lua_ls", {
+  cmd = { "lua-language-server" },
   settings = {
-    Lua = {},
+    Lua = {
+      runtime = {
+        version = "LuaJIT",
+      },
+      diagnostics = {
+        globals = { "vim" },
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
+      },
+      telemetry = {
+        enable = false,
+      },
+    },
   },
 })
 
