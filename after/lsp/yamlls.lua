@@ -26,9 +26,7 @@ return require("schema-companion").setup_client(
         completion = true,
         hover = true,
         -- Custom tags for Helm templates
-        customTags = {
-
-        },
+        customTags = {},
       },
     },
     single_file_support = true,
