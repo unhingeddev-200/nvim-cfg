@@ -20,6 +20,10 @@ return require("schema-companion").setup_client(
         -- Enable format on save
         format = {
           enable = true,
+          -- Prefer single quotes over double quotes
+          singleQuote = true,
+          -- Prefer no quotes when possible
+          proseWrap = "preserve",
         },
         -- Validation settings
         validate = true,

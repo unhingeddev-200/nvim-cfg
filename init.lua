@@ -1,5 +1,8 @@
 -- bootstrap lazy.nvim, LazyVim and your plugins
+-- Optional, you don't have to run setup.
+-- Optional, you don't have to run setup.
 require("config.lazy")
+ -- Optional, you don't have to run setup.
 require("luasnip.loaders.from_lua").load({ paths = { "~/.config/luasnip" } })
 require("comfy-line-numbers").setup({
   labels = {
