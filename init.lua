@@ -2,7 +2,7 @@
 -- Optional, you don't have to run setup.
 -- Optional, you don't have to run setup.
 require("config.lazy")
- -- Optional, you don't have to run setup.
+-- Optional, you don't have to run setup.
 require("luasnip.loaders.from_lua").load({ paths = { "~/.config/luasnip" } })
 require("comfy-line-numbers").setup({
   labels = {
@@ -157,7 +157,7 @@ vim.lsp.config("gopls", {
         "-node_modules",
         "-vendor",
       },
-
+      buildFlags = { "-tags=unittests" },
       -- Experimental features
       experimentalPostfixCompletions = true,
     },
@@ -191,6 +191,27 @@ vim.lsp.config("ts_ls", {})
 vim.lsp.config("protols", {
   cmd = { "protols" },
   filetypes = { "proto" },
+})
+
+-- Configure astro for Astro files
+vim.lsp.config("astro", {
+  cmd = { "astro-ls", "--stdio" },
+  filetypes = { "astro" },
+  init_options = {
+    typescript = {
+      tsdk = vim.fn.expand("~/.local/share/mise/installs/node/25.1.0/lib/node_modules/typescript/lib"),
+    },
+  },
+})
+
+vim.lsp.config("mdx-analyzer", {
+  cmd = { "mdx-language-server", "--stdio" },
+  filetypes = { "mdx" },
+  init_options = {
+    typescript = {
+      tsdk = vim.fn.expand("~/.local/share/mise/installs/node/25.1.0/lib/node_modules/typescript/lib"),
+    },
+  },
 })
 
 -- Disable the built-in SQL completion keymaps that use <C-c>
@@ -238,6 +259,8 @@ vim.lsp.enable("protols", true)
 vim.lsp.enable("clangd", true)
 vim.lsp.enable("dartls", true)
 vim.lsp.enable("yamlls", true)
+vim.lsp.enable("astro", true)
+vim.lsp.enable("mdx-analyzer", true)
 
 function _G.print_to_buffer(data)
   vim.cmd("new")
