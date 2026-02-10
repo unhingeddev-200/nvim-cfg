@@ -66,3 +66,63 @@ vim.keymap.set("n", "<leader>dW", function()
 end, { desc = "Remove Watch" })
 
 vim.keymap.set("n", "<leader>cp", ":let @+ = expand('%:p')<CR>")
+
+-- Copy Go package path to clipboard
+local function copy_go_package_path()
+  local filepath = vim.fn.expand("%:p")
+  local filedir = vim.fn.expand("%:p:h")
+
+  -- Find go.mod file
+  local function find_go_mod(dir)
+    local go_mod = dir .. "/go.mod"
+    if vim.fn.filereadable(go_mod) == 1 then
+      return go_mod
+    end
+    local parent = vim.fn.fnamemodify(dir, ":h")
+    if parent == dir then
+      return nil
+    end
+    return find_go_mod(parent)
+  end
+
+  local go_mod_path = find_go_mod(filedir)
+  if not go_mod_path then
+    vim.notify("go.mod not found in parent directories", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Read module name from go.mod
+  local go_mod_dir = vim.fn.fnamemodify(go_mod_path, ":h")
+  local go_mod_content = vim.fn.readfile(go_mod_path)
+  local module_name = nil
+  for _, line in ipairs(go_mod_content) do
+    local match = line:match("^module%s+(.+)$")
+    if match then
+      module_name = match:gsub("%s+", "")
+      break
+    end
+  end
+
+  if not module_name then
+    vim.notify("Could not parse module name from go.mod", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Get relative path from go.mod directory
+  local rel_path = filedir:sub(#go_mod_dir + 2) -- +2 to skip the trailing /
+  
+  -- Build the full import path
+  local import_path
+  if rel_path == "" or rel_path == filedir then
+    -- We're in the root directory
+    import_path = module_name
+  else
+    import_path = module_name .. "/" .. rel_path
+  end
+
+  -- Copy to system clipboard
+  vim.fn.setreg("+", import_path)
+  vim.notify('Copied: "' .. import_path .. '"', vim.log.levels.INFO)
+end
+
+vim.keymap.set("n", "<leader>cg", copy_go_package_path, { desc = "Copy Go package path" })
