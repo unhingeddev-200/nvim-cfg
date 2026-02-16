@@ -39,7 +39,12 @@ vim.api.nvim_set_keymap("n", "<leader>tg", ":!templ generate<CR>", { desc = "tem
 vim.api.nvim_set_keymap("i", "<C-o>", "<CR>", {})
 vim.keymap.set("n", "<leader>cli", ":LspInfo<CR>", { desc = "Lsp Info" })
 vim.keymap.set("n", "<leader>clr", function()
-  vim.api.nvim_command(":LspRestart")
+  --vim.api.nvim_command(":LspRestart")
+  local clients = vim.lsp.get_clients()
+  for _, v in pairs(clients) do
+    vim.lsp.enable(v.name, false)
+    vim.lsp.enable(v.name, true)
+  end
 end, { desc = "Restart buffer Lsp" })
 
 vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })
@@ -110,7 +115,7 @@ local function copy_go_package_path()
 
   -- Get relative path from go.mod directory
   local rel_path = filedir:sub(#go_mod_dir + 2) -- +2 to skip the trailing /
-  
+
   -- Build the full import path
   local import_path
   if rel_path == "" or rel_path == filedir then

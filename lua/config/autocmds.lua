@@ -48,14 +48,17 @@ local print_to_buf = function(txt, buf)
   return buf
 end
 
-vim.api.nvim_create_autocmd("VimEnter", {
+local late_binds = {
   pattern = "*",
   callback = function()
     vim.keymap.set({ "n", "v", "i" }, "<C-l>", "<CR>", { buffer = false, remap = true, silent = true })
     vim.keymap.set({ "n", "v", "i" }, "<C-c>", "<ESC>", { buffer = false, remap = false, silent = true })
     vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })
   end,
-})
+}
+
+vim.api.nvim_create_autocmd("VimEnter", late_binds)
+vim.api.nvim_create_autocmd("LspAttach", late_binds)
 
 vim.api.nvim_create_autocmd("TermEnter", {
   callback = function()
