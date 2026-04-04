@@ -1,0 +1,1 @@
+(directive name: (sym) @keyword)

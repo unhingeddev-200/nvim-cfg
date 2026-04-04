@@ -2,17 +2,21 @@ return {
   "mfussenegger/nvim-dap",
   config = function()
     local dap = require("dap")
-
+    dap.adapters.gdb = {
+      type = "executable",
+      command = "gdb",
+      args = { "--interpreter=dap", "--eval-command", "set print pretty on" },
+    }
     -- Configure Delve adapter for Go debugging
     dap.adapters.delve = function(callback, config)
-      if config.request == 'attach' then
+      if config.request == "attach" then
         -- Attach to a running process or remote headless dlv server
-        if config.mode == 'remote' then
+        if config.mode == "remote" then
           -- Attach to remote headless dlv server
           callback({
-            type = 'server',
-            host = config.host or '127.0.0.1',
-            port = config.port or '38697'
+            type = "server",
+            host = config.host or "127.0.0.1",
+            port = config.port or "38697",
           })
         else
           -- Attach to local process
@@ -21,25 +25,33 @@ return {
             pid = pid()
           end
           callback({
-            type = 'server',
-            port = '${port}',
+            type = "server",
+            port = "${port}",
             executable = {
-              command = 'dlv',
-              args = { 'attach', tostring(pid), '--headless', '--listen=127.0.0.1:${port}', '--accept-multiclient', '--log', '--log-output=dap' },
+              command = "dlv",
+              args = {
+                "attach",
+                tostring(pid),
+                "--headless",
+                "--listen=127.0.0.1:${port}",
+                "--accept-multiclient",
+                "--log",
+                "--log-output=dap",
+              },
               detached = vim.fn.has("win32") == 0,
-            }
+            },
           })
         end
       else
         -- Launch mode
         callback({
-          type = 'server',
-          port = '${port}',
+          type = "server",
+          port = "${port}",
           executable = {
-            command = 'dlv',
-            args = { 'dap', '-l', '127.0.0.1:${port}', '--log', '--log-output=dap' },
+            command = "dlv",
+            args = { "dap", "-l", "127.0.0.1:${port}", "--log", "--log-output=dap" },
             detached = vim.fn.has("win32") == 0,
-          }
+          },
         })
       end
     end
@@ -50,27 +62,27 @@ return {
         type = "delve",
         name = "Debug (go.mod)",
         request = "launch",
-        program = "${workspaceFolder}"
+        program = "${workspaceFolder}",
       },
       {
         type = "delve",
         name = "Debug current file",
         request = "launch",
-        program = "${file}"
+        program = "${file}",
       },
       {
         type = "delve",
         name = "Debug test (current file)",
         request = "launch",
         mode = "test",
-        program = "${file}"
+        program = "${file}",
       },
       {
         type = "delve",
         name = "Debug test (go.mod package)",
         request = "launch",
         mode = "test",
-        program = "./${relativeFileDirname}"
+        program = "./${relativeFileDirname}",
       },
       {
         type = "delve",
@@ -86,7 +98,20 @@ return {
         mode = "remote",
         host = "127.0.0.1",
         port = 38697,
-      }
+      },
     }
-  end
+
+    dap.configurations.c = {
+      {
+        name = "Launch",
+        type = "gdb",
+        request = "launch",
+        program = function()
+          return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+        end,
+        cwd = "${workspaceFolder}",
+        stopAtBeginningOfMainSubprogram = false,
+      },
+    }
+  end,
 }

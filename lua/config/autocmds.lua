@@ -70,7 +70,7 @@ vim.api.nvim_create_autocmd("TermEnter", {
 })
 
 vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = { "*.go", "*.templ" },
+  pattern = { "*.go", "*.templ", "justfile", "*.just", "Justfile" },
   callback = function()
     vim.keymap.set("i", "<C-e>k", ":=")
     pcall(function()
@@ -81,7 +81,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = { "*.ex", "*.exs" },
-  callback = function()
+  callback = function(ev)
     vim.keymap.set("i", "<C-e>k", "->")
   end,
 })
@@ -198,5 +198,17 @@ vim.api.nvim_create_autocmd("BufEnter", {
       name = "fish-lsp",
       cmd = { "fish-lsp", "start" },
     })
+  end,
+})
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "justfile", "Justfile", "*.just" },
+  callback = function()
+    local obj = vim.system({ "just", "-f", vim.fn.expand("%"), "--fmt" }, { text = true }):wait()
+    if obj.code ~= 0 then
+      vim.notify(obj.stderr, vim.log.levels.INFO)
+    else
+      vim.cmd.edit()
+    end
   end,
 })

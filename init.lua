@@ -78,6 +78,18 @@ vim.lsp.config("zls", {
   },
 })
 
+vim.lsp.config("nimls", {
+  cmd = { "nimlsp" },
+  filetypes = { "nim" },
+  root_dir = function(bufnr, on_dir)
+    local util = require("lspconfig.util")
+    local fname = vim.api.nvim_buf_get_name(bufnr)
+    on_dir(
+      util.root_pattern("*.nimble")(fname) or vim.fs.dirname(vim.fs.find(".git", { path = fname, upward = true })[1])
+    )
+  end,
+})
+
 -- Vim LSP configs
 vim.lsp.config("lua_ls", {
   cmd = { "lua-language-server" },
@@ -181,9 +193,7 @@ vim.lsp.config("gopls", {
     usePlaceholders = true,
   },
 })
-vim.lsp.config("elixirls", {
-  cmd = { "/home/havok/bin/lsp/elixir-ls/language_server.sh" },
-})
+
 vim.lsp.config("denols", {})
 vim.lsp.config("ts_ls", {})
 
@@ -238,6 +248,14 @@ vim.g.omni_sql_no_default_maps = 1
 --   end,
 -- })
 
+-- vim.lsp.config("csharp_ls", {
+--   cmd = { "csharp-ls" },
+--   filetypes = { "cs" },
+--   init_options = {
+--     AutomaticWorkspaceInit = false,
+--   },
+-- })
+
 -- Vim LSP enable
 vim.lsp.enable("ts_ls", false)
 vim.lsp.enable("denols", true)
@@ -260,7 +278,8 @@ vim.lsp.enable("clangd", true)
 vim.lsp.enable("dartls", true)
 vim.lsp.enable("yamlls", true)
 vim.lsp.enable("astro", true)
-vim.lsp.enable("mdx-analyzer", true)
+vim.lsp.enable("mdx_analyzer", true)
+vim.lsp.enable("nimls", true)
 
 function _G.print_to_buffer(data)
   vim.cmd("new")
@@ -277,3 +296,11 @@ function _G.print_to_buffer(data)
 
   vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 end
+
+-- filetypes
+vim.filetype.add({
+  extension = {
+    inc = "asm",
+  },
+})
+
