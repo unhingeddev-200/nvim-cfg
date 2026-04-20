@@ -12,7 +12,7 @@ return {
         gas = {
           install_info = {
             use_repo_queries = true,
-            url = "https://github.com/unhingeddev-200/tree-sitter-gas.git",
+            url = "file:///home/havok/Work/tree-sitter/tree-sitter-gas",
           },
         },
       },

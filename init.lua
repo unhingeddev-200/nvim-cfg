@@ -1,8 +1,4 @@
--- bootstrap lazy.nvim, LazyVim and your plugins
--- Optional, you don't have to run setup.
--- Optional, you don't have to run setup.
 require("config.lazy")
--- Optional, you don't have to run setup.
 require("luasnip.loaders.from_lua").load({ paths = { "~/.config/luasnip" } })
 require("comfy-line-numbers").setup({
   labels = {
@@ -300,7 +296,26 @@ end
 -- filetypes
 vim.filetype.add({
   extension = {
-    inc = "asm",
+    inc = "gas",
+    s = "gas",
+    S = "gas",
+    gas = "gas",
   },
 })
 
+vim.api.nvim_create_user_command("TSRestart", function()
+  local tsm = require("tree-sitter-manager")
+  tsm._install_single(vim.bo.filetype, function() end)
+  vim.treesitter.stop()
+  vim.treesitter.start()
+end, {})
+
+require("mini.icons").setup({
+  default = {
+    -- Override default glyph for "file" category (reuse highlight group)
+    -- file = { glyph = "󰈤" },
+  },
+  filetype = {
+    gas = { glyph = "", hl = "MiniIconsRed" },
+  },
+})
