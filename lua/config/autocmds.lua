@@ -3,10 +3,69 @@
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 -- Add any additional autocmds here
 
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if not client then
+      return
+    end
+
+    if client.name == "slangd" then
+      client.server_capabilities.documentFormattingProvider = false
+      client.server_capabilities.documentRangeFormattingProvider = false
+    end
+  end,
+})
+
+--- slangd can leave duplicate AST state after a write (Tu “stacked”; fix is didClose+didOpen).
+local slangd_au = vim.api.nvim_create_augroup("config_slangd_soft_resync", { clear = true })
+
+---@param bufnr integer
+local function slangd_soft_resync(bufnr)
+  local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "slangd" })
+  if #clients == 0 then
+    return
+  end
+  local ids = vim.tbl_map(function(c)
+    return c.id
+  end, clients)
+  for _, id in ipairs(ids) do
+    pcall(vim.lsp.buf_detach_client, bufnr, id)
+  end
+  vim.schedule(function()
+    if not vim.api.nvim_buf_is_valid(bufnr) then
+      return
+    end
+    for _, id in ipairs(ids) do
+      if vim.lsp.get_client_by_id(id) then
+        pcall(vim.lsp.buf_attach_client, bufnr, id)
+      end
+    end
+  end)
+end
+
+vim.api.nvim_create_autocmd("BufWritePost", {
+  group = slangd_au,
+  callback = function(args)
+    local bufnr = args.buf
+    if #vim.lsp.get_clients({ bufnr = bufnr, name = "slangd" }) == 0 then
+      return
+    end
+    vim.b[bufnr].config_slangd_write_seq = (vim.b[bufnr].config_slangd_write_seq or 0) + 1
+    local seq = vim.b[bufnr].config_slangd_write_seq
+    vim.defer_fn(function()
+      if not vim.api.nvim_buf_is_valid(bufnr) or vim.b[bufnr].config_slangd_write_seq ~= seq then
+        return
+      end
+      slangd_soft_resync(bufnr)
+    end, 120)
+  end,
+})
 -- Filetype detection for MDX files
 vim.filetype.add({
   extension = {
     mdx = "mdx",
+    slang = "shaderslang", -- slangd attaches as shaderslang / hlsl; matches tree-sitter in ts-manager
   },
 })
 ---@param txt string[]
@@ -51,7 +110,7 @@ end
 local late_binds = {
   pattern = "*",
   callback = function()
-    vim.keymap.set({ "n", "v", "i" }, "<C-l>", "<CR>", { buffer = false, remap = true, silent = true })
+    -- vim.keymap.set({ "n", "v", "i" }, "<C-l>", "<CR>", { buffer = false, remap = true, silent = true })
     vim.keymap.set({ "n", "v", "i" }, "<C-c>", "<ESC>", { buffer = false, remap = false, silent = true })
     vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })
   end,

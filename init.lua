@@ -251,8 +251,65 @@ vim.g.omni_sql_no_default_maps = 1
 --     AutomaticWorkspaceInit = false,
 --   },
 -- })
+vim.lsp.config("kotlin-lsp", {
+  cmd = { "kotlin-lsp.sh", "--stdio" },
+  filetypes = { "kotlin" },
+  root_markers = {
+    "settings.gradle", -- Gradle (multi-project)
+    "settings.gradle.kts", -- Gradle (multi-project)
+    "pom.xml", -- Maven
+    "build.gradle", -- Gradle
+    "build.gradle.kts", -- Gradle
+    "workspace.json", -- Used to integrate your own build system
+  },
+})
+
+vim.lsp.config("dartls", {
+  cmd = { "dart", "language-server", "--protocol=lsp" },
+  filetypes = { "dart" },
+  init_options = {
+    onlyAnalyzeProjectsWithOpenFiles = true,
+    suggestFromUnimportedLibraries = true,
+    closingLabels = true,
+    outline = true,
+    flutterOutline = true,
+  },
+  ---@type lspconfig.settings.dartls
+  settings = {
+    dart = {
+      completeFunctionCalls = false,
+      updateImportsOnRename = true,
+      showTodos = true,
+      inlayHints = true,
+    },
+  },
+})
+
+vim.lsp.config("slangd", {
+  cmd = { "slangd" },
+  filetypes = { "hlsl", "shaderslang" },
+  root_markers = { "slangdconfig.json", ".clang-format", ".git" },
+  -- Keep slangd aligned with the buffer:
+  -- • Full sync — robust vs formatter bursts.
+  -- • debounce 0 — didChange flushed before BufWrite-derived autocmds (e.g. auto-save).
+  -- After writes, slangd sometimes stacks duplicate TU state; BufWritePost soft-resync fixes that (autocmds).
+  flags = {
+    allow_incremental_sync = false,
+    debounce_text_changes = 0,
+  },
+  settings = {
+    slang = {
+      predefinedMacros = {},
+      inlayHints = {
+        deducedTypes = true,
+        parameterNames = true,
+      },
+    },
+  },
+})
 
 -- Vim LSP enable
+vim.lsp.enable("slangd", true)
 vim.lsp.enable("ts_ls", false)
 vim.lsp.enable("denols", true)
 vim.lsp.enable("lua_ls", true)
@@ -276,6 +333,7 @@ vim.lsp.enable("yamlls", true)
 vim.lsp.enable("astro", true)
 vim.lsp.enable("mdx_analyzer", true)
 vim.lsp.enable("nimls", true)
+vim.lsp.enable("kotlin-lsp", true)
 
 function _G.print_to_buffer(data)
   vim.cmd("new")
@@ -319,3 +377,23 @@ require("mini.icons").setup({
     gas = { glyph = "", hl = "MiniIconsRed" },
   },
 })
+
+vim.lsp.config("gasls", {
+  cmd = { "gasls" },
+  filetypes = { "gas" },
+})
+vim.lsp.enable("gasls", true)
+
+vim.api.nvim_create_user_command("LspInfo", function()
+  vim.cmd("checkhealth vim.lsp")
+end, {})
+
+vim.api.nvim_create_user_command("LspLog", function()
+  local path = vim.lsp.log.get_filename()
+  vim.cmd("edit " .. path)
+end, {})
+
+vim.api.nvim_create_user_command("LspLogClear", function()
+  local path = vim.lsp.log.get_filename()
+  vim.system({ "rm", path }, function(out) end)
+end, {})

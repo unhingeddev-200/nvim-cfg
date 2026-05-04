@@ -15,9 +15,28 @@ return {
             url = "file:///home/havok/Work/tree-sitter/tree-sitter-gas",
           },
         },
+        slang = {
+          install_info = {
+            -- Builtin slang pins `revision`; deep-merge keeps it unless overridden.
+            -- That checkout wins over your local master — use false to build clone HEAD.
+            revision = false,
+            use_repo_queries = true,
+            url = "file:///home/havok/Work/repo/tree-sitter/tree-sitter-slang",
+          },
+        },
       },
       -- parser_dir = vim.fn.stdpath("data") .. "/site/parser",
       -- query_dir = vim.fn.stdpath("data") .. "/site/queries",
+    })
+
+    -- slangd uses filetypes hlsl / shaderslang; parser is installed as "slang"
+    vim.treesitter.language.register("slang", { "hlsl", "shaderslang" })
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = { "hlsl", "shaderslang" },
+      callback = function()
+        pcall(vim.treesitter.start)
+      end,
+      desc = "Tree-sitter highlights (slang grammar) for HLSL / Shader Slang",
     })
   end,
 }
