@@ -199,15 +199,71 @@ vim.lsp.config("protols", {
   filetypes = { "proto" },
 })
 
--- Configure astro for Astro files
+-- Resolve directory containing typescript.js (astro-ls requires typescript.tsdk on every initialize).
+local function resolve_typescript_lib(root_dir)
+  local util = require("lspconfig.util")
+  root_dir = (root_dir and root_dir ~= "" and root_dir) or vim.fn.getcwd()
+  local tsdk = util.get_typescript_server_path(root_dir)
+  if tsdk ~= "" and vim.fn.isdirectory(tsdk) == 1 then
+    return tsdk
+  end
+  -- Project-local TS via Node (handles hoisted / nonstandard node_modules layouts)
+  local node_cmd = string.format(
+    'cd %s && node -e \'try{const p=require("path");const t=require.resolve("typescript/package.json");process.stdout.write(p.join(p.dirname(t),"lib"))}catch{process.exit(1)}\'',
+    vim.fn.shellescape(root_dir)
+  )
+  local out = vim.trim(vim.fn.system({ "sh", "-c", node_cmd }))
+  if vim.v.shell_error == 0 and out ~= "" and vim.fn.isdirectory(out) == 1 then
+    return out
+  end
+  -- npm global install: $(npm root -g)/typescript/lib
+  local npmg = vim.trim(vim.fn.system({ "npm", "root", "-g" }))
+  if vim.v.shell_error == 0 and npmg ~= "" then
+    local g = npmg .. "/typescript/lib"
+    if vim.fn.isdirectory(g) == 1 then
+      return g
+    end
+  end
+  -- mise Node installs (any version)
+  for _, p in
+    ipairs(
+      vim.fn.glob(vim.fn.expand("~/.local/share/mise/installs/node/*/lib/node_modules/typescript/lib"), false, true)
+    )
+  do
+    if vim.fn.isdirectory(p) == 1 then
+      return p
+    end
+  end
+  -- distro / manual (e.g. Arch `community/typescript`)
+  for _, try in ipairs({ "/usr/lib/node_modules/typescript/lib", "/usr/local/lib/node_modules/typescript/lib" }) do
+    if vim.fn.isdirectory(try) == 1 then
+      return try
+    end
+  end
+  return ""
+end
+
+-- Configure astro for Astro files (workspace typescript/lib via lspconfig helper; local node_modules/.bin/astro-ls when present)
 vim.lsp.config("astro", {
-  cmd = { "astro-ls", "--stdio" },
-  filetypes = { "astro" },
   init_options = {
-    typescript = {
-      tsdk = vim.fn.expand("~/.local/share/mise/installs/node/25.1.0/lib/node_modules/typescript/lib"),
-    },
+    typescript = {},
   },
+  before_init = function(_, config)
+    config.init_options = config.init_options or {}
+    config.init_options.typescript = config.init_options.typescript or {}
+    if config.init_options.typescript.tsdk and config.init_options.typescript.tsdk ~= "" then
+      return
+    end
+    local tsdk = resolve_typescript_lib(config.root_dir)
+    if tsdk ~= "" then
+      config.init_options.typescript.tsdk = tsdk
+      return
+    end
+    vim.notify(
+      "astro-ls: no TypeScript SDK found. Install `typescript` in the project or globally (`npm i -g typescript`).",
+      vim.log.levels.ERROR
+    )
+  end,
 })
 
 vim.lsp.config("mdx-analyzer", {
@@ -334,6 +390,7 @@ vim.lsp.enable("astro", true)
 vim.lsp.enable("mdx_analyzer", true)
 vim.lsp.enable("nimls", true)
 vim.lsp.enable("kotlin-lsp", true)
+vim.lsp.enable("systemd_lsp", true)
 
 function _G.print_to_buffer(data)
   vim.cmd("new")

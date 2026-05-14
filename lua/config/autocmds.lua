@@ -167,6 +167,12 @@ vim.api.nvim_create_autocmd("BufEnter", {
     vim.keymap.set("i", "<C-e>k", ":=")
   end,
 })
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = { "*.fish" },
+  callback = function()
+    vim.keymap.set("i", "<C-e>d", "$")
+  end,
+})
 -- Auto-save configuration: automatically save files without prompting
 vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
   pattern = "*",
