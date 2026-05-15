@@ -196,7 +196,12 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
     vim.lsp.enable("sqls", true)
   end,
 })
-
+vim.api.nvim_create_autocmd("LspAttach", {
+  pattern = { "*" },
+  callback = function()
+    vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })
+  end,
+})
 -- vim.api.nvim_create_autocmd({ "LspAttach" }, {
 --   pattern = { "*.sql" },
 --   callback = function()

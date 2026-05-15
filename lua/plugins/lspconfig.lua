@@ -18,15 +18,15 @@ return {
 
     opts.servers["*"] = opts.servers["*"] or {}
     opts.servers["*"].keys = opts.servers["*"].keys or {}
-    vim.list_extend(opts.servers["*"].keys, {
-      {
-        "<c-k>",
-        function()
-          return require("blink.cmp").select_prev
-        end,
-        mode = "i",
-        desc = "Select previous item",
-      },
-    })
+    -- vim.list_extend(opts.servers["*"].keys, {
+    --   {
+    --     "<c-k>",
+    --     function()
+    --       return require("blink.cmp").select_prev
+    --     end,
+    --     mode = "i",
+    --     desc = "Select previous item",
+    --   },
+    -- })
   end,
 }
