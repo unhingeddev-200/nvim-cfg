@@ -364,6 +364,51 @@ vim.lsp.config("slangd", {
   },
 })
 
+-- Tailwind: only attach when tailwindcss-language-server exists (PATH or project's node_modules).
+-- Otherwise vim.lsp would try to spawn, fail ENOENT, and spam notify + msg_showcmd.
+vim.lsp.config("tailwindcss", {
+  ---@type lsp.Config
+  root_dir = function(bufnr, on_dir)
+    local fname = vim.api.nvim_buf_get_name(bufnr)
+    if fname == "" then
+      return on_dir(nil)
+    end
+
+    local util = require("lspconfig.util")
+    local root_files = {
+      "tailwind.config.js",
+      "tailwind.config.cjs",
+      "tailwind.config.mjs",
+      "tailwind.config.ts",
+      "postcss.config.js",
+      "postcss.config.cjs",
+      "postcss.config.mjs",
+      "postcss.config.ts",
+      "theme/static_src/tailwind.config.js",
+      "theme/static_src/tailwind.config.cjs",
+      "theme/static_src/tailwind.config.mjs",
+      "theme/static_src/tailwind.config.ts",
+      "theme/static_src/postcss.config.js",
+      ".git",
+    }
+    root_files = util.insert_package_json(root_files, "tailwindcss", fname)
+    root_files =
+      util.root_markers_with_field(root_files, { "mix.lock", "Gemfile.lock" }, "tailwind", fname)
+
+    local found = vim.fs.find(root_files, { path = fname, upward = true })[1]
+    local root_dir = found and vim.fs.dirname(found)
+    if not root_dir then
+      return on_dir(nil)
+    end
+
+    local local_bin = vim.fs.joinpath(root_dir, "node_modules/.bin/tailwindcss-language-server")
+    local has_ls = vim.fn.executable(local_bin) == 1 or vim.fn.executable("tailwindcss-language-server") == 1
+
+    -- workspace_required=true + nil root ⇒ vim.lsp.start skips without spawning (no noisy warn).
+    return on_dir(has_ls and root_dir or nil)
+  end,
+})
+
 -- Vim LSP enable
 vim.lsp.enable("slangd", true)
 vim.lsp.enable("ts_ls", false)

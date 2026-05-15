@@ -41,13 +41,18 @@ vim.api.nvim_set_keymap("n", "<leader>tg", ":!templ generate<CR>", { desc = "tem
 vim.api.nvim_set_keymap("i", "<C-o>", "<CR>", {})
 vim.keymap.set("n", "<leader>cli", ":LspInfo<CR>", { desc = "Lsp Info" })
 vim.keymap.set("n", "<leader>clr", function()
-  --vim.api.nvim_command(":LspRestart")
+  -- Do not toggle vim.lsp.enable per server: that fires doautoall repeatedly while
+  -- clients are still stopping (async), which spawns duplicate server processes.
   local clients = vim.lsp.get_clients()
-  for _, v in pairs(clients) do
-    vim.lsp.enable(v.name, false)
-    vim.lsp.enable(v.name, true)
-  end
-end, { desc = "Restart buffer Lsp" })
+  vim.schedule(function()
+    for _, client in ipairs(clients) do
+      client:stop(true)
+    end
+    vim.schedule(function()
+      vim.cmd.doautoall("nvim.lsp.enable FileType")
+    end)
+  end)
+end, { desc = "Restart LSP servers" })
 
 vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })
 vim.keymap.set({ "n" }, "<leader>S", ":SqlsExecuteQuery<CR>", { silent = false, desc = "Execute Query" })
