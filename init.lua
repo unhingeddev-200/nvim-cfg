@@ -434,6 +434,13 @@ vim.lsp.enable("yamlls", true)
 vim.lsp.enable("astro", true)
 vim.lsp.enable("mdx_analyzer", true)
 vim.lsp.enable("nimls", true)
+vim.lsp.config("systemd_lsp", {
+  root_dir = function(bufnr, on_dir)
+    local fname = vim.api.nvim_buf_get_name(bufnr)
+    on_dir(fname ~= "" and vim.fs.dirname(fname) or vim.fn.getcwd())
+  end,
+})
+
 vim.lsp.enable("kotlin-lsp", true)
 vim.lsp.enable("systemd_lsp", true)
 
@@ -460,6 +467,30 @@ vim.filetype.add({
     s = "gas",
     S = "gas",
     gas = "gas",
+    -- Neovim only detects systemd by path (e.g. /etc/systemd/); map extensions too.
+    service = "systemd",
+    socket = "systemd",
+    timer = "systemd",
+    target = "systemd",
+    mount = "systemd",
+    automount = "systemd",
+    path = "systemd",
+    slice = "systemd",
+    swap = "systemd",
+    device = "systemd",
+    scope = "systemd",
+    link = "systemd",
+    netdev = "systemd",
+    network = "systemd",
+    nspawn = "systemd",
+    dnssd = "systemd",
+    container = "systemd",
+    volume = "systemd",
+    kube = "systemd",
+    pod = "systemd",
+    build = "systemd",
+    image = "systemd",
+    artifact = "systemd",
   },
 })
 
