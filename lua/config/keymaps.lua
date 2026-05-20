@@ -33,6 +33,7 @@ vim.keymap.set("i", "<C-e>n", "{}<left>")
 vim.keymap.set("i", "<C-e>b", "{{}}<left><left>")
 vim.keymap.set("i", "<C-e>m", "[]<left>")
 vim.keymap.set("i", "<C-e>d", "<-")
+vim.keymap.set("i", "<C-e>q", "-")
 
 vim.api.nvim_set_keymap("n", "<C-m>", ":delm!<CR>", {})
 vim.api.nvim_set_keymap("n", "<C-e>e", "/", {})
@@ -41,17 +42,32 @@ vim.api.nvim_set_keymap("n", "<leader>tg", ":!templ generate<CR>", { desc = "tem
 vim.api.nvim_set_keymap("i", "<C-o>", "<CR>", {})
 vim.keymap.set("n", "<leader>cli", ":LspInfo<CR>", { desc = "Lsp Info" })
 vim.keymap.set("n", "<leader>clr", function()
-  -- Do not toggle vim.lsp.enable per server: that fires doautoall repeatedly while
-  -- clients are still stopping (async), which spawns duplicate server processes.
-  local clients = vim.lsp.get_clients()
-  vim.schedule(function()
-    for _, client in ipairs(clients) do
-      client:stop(true)
+  -- Stopped clients stay in lsp.client._all until the process exits; until then
+  -- reuse_client_default rejects them and vim.lsp.start spawns a second process.
+  -- Wait until each id is gone from get_client_by_id before re-running FileType.
+  local clients = vim.lsp.get_clients({ _uninitialized = true })
+  local ids = vim.tbl_map(function(c)
+    return c.id
+  end, clients)
+  if #ids == 0 then
+    vim.cmd.doautoall("nvim.lsp.enable FileType")
+    return
+  end
+  for _, client in ipairs(clients) do
+    client:stop(true)
+  end
+  local ok = vim.wait(20000, function()
+    for _, id in ipairs(ids) do
+      if vim.lsp.get_client_by_id(id) then
+        return false
+      end
     end
-    vim.schedule(function()
-      vim.cmd.doautoall("nvim.lsp.enable FileType")
-    end)
-  end)
+    return true
+  end, 50)
+  if ok ~= true then
+    vim.notify("LSP restart: timeout waiting for clients to exit (duplicates may appear)", vim.log.levels.WARN)
+  end
+  vim.cmd.doautoall("nvim.lsp.enable FileType")
 end, { desc = "Restart LSP servers" })
 
 vim.keymap.set("i", "<C-k>", require("blink.cmp").select_prev, { desc = "blink.cmp: Select previous item" })

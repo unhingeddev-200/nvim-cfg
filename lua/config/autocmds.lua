@@ -261,16 +261,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 --   end,
 -- })
 
-vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = { "*.fish" },
-  callback = function()
-    vim.lsp.start({
-      name = "fish-lsp",
-      cmd = { "fish-lsp", "start" },
-    })
-  end,
-})
-
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = { "justfile", "Justfile", "*.just" },
   callback = function()

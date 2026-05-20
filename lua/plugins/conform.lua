@@ -16,6 +16,8 @@ return {
       json = { "prettier_json" },
       svg = { "prettier_svg" },
       shaderslang = { "clang_format" },
+      -- BIND zone files (see :h bindzone); requires `dnsfmt` on PATH (e.g. go install github.com/miekg/dnsfmt@latest)
+      bindzone = { "dnsfmt" },
     })
 
     opts.formatters = vim.tbl_deep_extend("force", opts.formatters or {}, {
@@ -41,6 +43,10 @@ return {
           "--config",
           vim.fn.stdpath("config") .. "/.sql-formatter.json",
         },
+        stdin = true,
+      },
+      dnsfmt = {
+        command = "dnsfmt",
         stdin = true,
       },
     })
