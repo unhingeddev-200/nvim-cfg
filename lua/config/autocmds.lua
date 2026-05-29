@@ -165,6 +165,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
   pattern = { "*.go", "*.templ" },
   callback = function()
     vim.keymap.set("i", "<C-e>k", ":=")
+    vim.keymap.set("i", "<C-e>d", "<-")
   end,
 })
 vim.api.nvim_create_autocmd("BufEnter", {
@@ -270,5 +271,26 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     else
       vim.cmd.edit()
     end
+  end,
+})
+
+local LUNAYA_MARKER = "Lunaya_Core_API.postman_collection.json"
+
+---@return string?
+local function lunaya_root()
+  local cwd = vim.fn.getcwd()
+  if vim.fn.filereadable(cwd .. "/" .. LUNAYA_MARKER) == 1 then
+    return cwd
+  end
+  return LazyVim.root.detectors.pattern(0, LUNAYA_MARKER)[1]
+end
+
+vim.api.nvim_create_autocmd("TermOpen", {
+  callback = function()
+    local root = lunaya_root()
+    if not root then
+      return
+    end
+    vim.fn.chansend(vim.v.event.buf, "export PYTHONPATH=" .. vim.fn.shellescape(root) .. "\r")
   end,
 })

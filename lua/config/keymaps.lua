@@ -32,7 +32,7 @@ vim.keymap.set("i", "<C-e>h", "==")
 vim.keymap.set("i", "<C-e>n", "{}<left>")
 vim.keymap.set("i", "<C-e>b", "{{}}<left><left>")
 vim.keymap.set("i", "<C-e>m", "[]<left>")
-vim.keymap.set("i", "<C-e>d", "<-")
+vim.keymap.set("i", "<C-e>d", "$")
 vim.keymap.set("i", "<C-e>q", "-")
 
 vim.api.nvim_set_keymap("n", "<C-m>", ":delm!<CR>", {})

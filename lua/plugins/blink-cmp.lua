@@ -24,13 +24,7 @@ return {
       accept = {
         auto_brackets = {
           enabled = true,
-          -- Disable auto-closing for backticks and single quotes in .m4 files
-          filter = function(ctx)
-            if vim.bo.filetype == "m4" and (ctx.kind == "`" or ctx.kind == "'") then
-              return false
-            end
-            return true
-          end,
+          blocked_filetypes = { "m4" },
         },
       },
     },

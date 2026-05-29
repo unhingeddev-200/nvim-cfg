@@ -2,6 +2,27 @@ return {
   "romus204/tree-sitter-manager.nvim",
   dependencies = {}, -- tree-sitter CLI must be installed system-wide
   config = function()
+    local function cleanup_stale_query_links()
+      local query_dir = vim.fn.stdpath("data") .. "/site/queries"
+      local handle = vim.uv.fs_scandir(query_dir)
+      if not handle then
+        return
+      end
+      while true do
+        local name = vim.uv.fs_scandir_next(handle)
+        if not name then
+          break
+        end
+        local path = vim.fs.joinpath(query_dir, name)
+        local stat = vim.uv.fs_lstat(path)
+        if stat and stat.type == "link" and vim.uv.fs_stat(path) == nil then
+          vim.uv.fs_unlink(path)
+        end
+      end
+    end
+
+    cleanup_stale_query_links()
+
     require("tree-sitter-manager").setup({
       -- Parsers for nvim-ts-autotag in .astro files (astro grammar depends on html + html_tags).
       ensure_installed = { "astro", "html", "html_tags" },
