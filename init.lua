@@ -279,27 +279,6 @@ vim.lsp.config("mdx-analyzer", {
 -- Disable the built-in SQL completion keymaps that use <C-c>
 vim.g.omni_sql_no_default_maps = 1
 
--- Configure sqls for SQL with database-aware completion
--- vim.lsp.config("sqls", {
---   cmd = { "sqls" },
---   filetypes = { "sql", "mysql", "plsql" },
---   settings = {
---     sqls = {
---       connections = {
---         -- Connections will be loaded from .sqls/config.yml in project root
---         -- This allows per-project database configuration
---       },
---     },
---   },
---   on_attach = function(client, bufnr)
---     -- Disable sqls formatting capability (use conform.nvim with sql-formatter instead)
---     client.server_capabilities.documentFormattingProvider = false
---     client.server_capabilities.documentRangeFormattingProvider = false
---
---     require("sqls").on_attach(client, bufnr)
---   end,
--- })
-
 -- vim.lsp.config("csharp_ls", {
 --   cmd = { "csharp-ls" },
 --   filetypes = { "cs" },
@@ -517,6 +496,7 @@ vim.lsp.config("gasls", {
   filetypes = { "gas" },
 })
 vim.lsp.enable("gasls", true)
+vim.lsp.enable("sqls", true)
 
 vim.api.nvim_create_user_command("LspInfo", function()
   vim.cmd("checkhealth vim.lsp")

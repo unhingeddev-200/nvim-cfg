@@ -162,6 +162,12 @@ vim.api.nvim_create_autocmd("BufEnter", {
 })
 
 vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = { "*.zig" },
+  callback = function()
+    vim.keymap.set("i", "<C-e>d", "@")
+  end,
+})
+vim.api.nvim_create_autocmd("BufEnter", {
   pattern = { "*.go", "*.templ" },
   callback = function()
     vim.keymap.set("i", "<C-e>k", ":=")
@@ -181,20 +187,6 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
     if vim.bo.modifiable and vim.bo.modified then
       vim.cmd("silent! write")
     end
-  end,
-})
--- Sqls
-vim.api.nvim_create_autocmd({ "BufEnter" }, {
-  pattern = { "*.sql" },
-  callback = function()
-    local buffer_dir = vim.fn.expand("%:p:h")
-    local matches = vim.fs.find(".sqls.yaml", { upward = true, path = buffer_dir })
-    vim.lsp.config("sqls", {
-      cmd = { "sqls", "-config", matches[1] },
-      root_markers = { ".sqls.yaml" },
-      filetypes = { "sql" },
-    })
-    vim.lsp.enable("sqls", true)
   end,
 })
 vim.api.nvim_create_autocmd("LspAttach", {

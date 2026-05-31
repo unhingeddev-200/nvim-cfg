@@ -40,7 +40,7 @@ return {
         command = "sql-formatter",
         args = {
           "--language",
-          "sql",
+          "postgresql",
           "--config",
           vim.fn.stdpath("config") .. "/.sql-formatter.json",
         },

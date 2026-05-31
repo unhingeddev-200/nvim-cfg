@@ -1,0 +1,43 @@
+---
+description: Explain planned investigation steps and rationale before acting
+alwaysApply: true
+---
+
+# Investigation Transparency
+
+When investigating an issue, explain what you are about to do and why before doing it.
+
+## Required Behavior
+
+Before each investigation step (reading files, running commands, searching the codebase, testing hypotheses), briefly state:
+
+1. **What** you are about to do
+2. **Why** it helps answer the question or narrow the cause
+
+Do this even when the step seems obvious. Do not silently run tools or explore without context.
+
+## Examples
+
+```
+I'll read init.lua next to see how gopls is configured, since missing CGO env vars there would explain the missing completions.
+```
+
+```
+Next I'll run `go list -compiled` in the project root to check whether cgo processing succeeds — gopls depends on that output for C symbol info.
+```
+
+```
+I'll grep for `import "C"` across your Go projects to find which one you're likely working in.
+```
+
+## When Investigating
+
+- Start with a short plan: what you know, what you're checking, and in what order
+- Before changing approach, say why the previous path didn't work
+- Before proposing a fix, summarize what you found and how it connects to the symptom
+
+## Avoid
+
+- Running multiple tools with no explanation of intent
+- Jumping straight to edits without stating the diagnosis
+- Only explaining results after the fact with no upfront rationale
