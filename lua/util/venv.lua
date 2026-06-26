@@ -25,6 +25,18 @@ function M.project_root(bufnr)
   end
 end
 
+---@param root string
+---@param module string
+---@return boolean
+function M.has_module(root, module)
+  local python = root .. "/.venv/bin/python3"
+  if vim.fn.executable(python) ~= 1 then
+    return false
+  end
+  local result = vim.system({ python, "-c", ("import %s"):format(module) }):wait()
+  return result.code == 0
+end
+
 ---@param name string
 ---@param root? string
 ---@return string?

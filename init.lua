@@ -165,15 +165,34 @@ vim.lsp.config("gopls", {
         "-node_modules",
         "-vendor",
       },
-      buildFlags = { "-tags=unittests" },
+      -- Do not set global buildFlags here: gopls passes them to `go list`, which
+      -- regenerate_cgo uses instead of `go tool cgo`. A global -tags value often
+      -- makes cgo regeneration fail while `go tool cgo <file>` still works.
+      env = (function()
+        local env = { CGO_ENABLED = "1" }
+        for _, key in ipairs({
+          "PKG_CONFIG_PATH",
+          "CGO_CFLAGS",
+          "CGO_CPPFLAGS",
+          "CGO_LDFLAGS",
+          "CPATH",
+          "LIBRARY_PATH",
+          "LD_LIBRARY_PATH",
+        }) do
+          if vim.env[key] then
+            env[key] = vim.env[key]
+          end
+        end
+        return env
+      end)(),
       -- Experimental features
       experimentalPostfixCompletions = true,
     },
   },
 
-  -- on_attach = function(client, bufnr)
-  --   -- Your custom on_attach logic
-  -- end,
+  on_attach = function(client, bufnr)
+    require("util.cgo").on_gopls_attach(client, bufnr)
+  end,
 
   -- Filetypes
   filetypes = { "go", "gomod", "gowork", "gotmpl" },
@@ -371,8 +390,7 @@ vim.lsp.config("tailwindcss", {
       ".git",
     }
     root_files = util.insert_package_json(root_files, "tailwindcss", fname)
-    root_files =
-      util.root_markers_with_field(root_files, { "mix.lock", "Gemfile.lock" }, "tailwind", fname)
+    root_files = util.root_markers_with_field(root_files, { "mix.lock", "Gemfile.lock" }, "tailwind", fname)
 
     local found = vim.fs.find(root_files, { path = fname, upward = true })[1]
     local root_dir = found and vim.fs.dirname(found)
@@ -406,6 +424,7 @@ vim.lsp.enable("rust_analyzer", true)
 vim.lsp.enable("dockerls", true)
 vim.lsp.enable("cue", true)
 vim.lsp.enable("pyright", true)
+vim.lsp.enable("mojo", true)
 vim.lsp.enable("ruff", false)
 vim.lsp.enable("protols", true)
 vim.lsp.enable("clangd", true)
@@ -423,6 +442,7 @@ vim.lsp.config("systemd_lsp", {
 
 vim.lsp.enable("kotlin-lsp", true)
 vim.lsp.enable("systemd_lsp", true)
+vim.lsp.enable("solidity_ls_nomicfoundation", true)
 
 function _G.print_to_buffer(data)
   vim.cmd("new")

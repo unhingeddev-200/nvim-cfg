@@ -4,7 +4,17 @@ local venv = require("util.venv")
 return {
   cmd = function(dispatchers, config)
     local root = config.root_dir or venv.project_root(config.bufnr)
-    local cmd = venv.bin("pyright-langserver", root) or "pyright-langserver"
+    local cmd
+    if root and venv.has_module(root, "pyright") then
+      cmd = venv.bin("pyright-langserver", root)
+    end
+    if not cmd and root and vim.fn.executable(root .. "/.venv/bin/pyright-langserver") == 1 then
+      vim.notify(
+        "project .venv has pyright-langserver but pyright is not installed; using global pyright-langserver",
+        vim.log.levels.WARN
+      )
+    end
+    cmd = cmd or "pyright-langserver"
     if vim.fn.executable(cmd) ~= 1 then
       vim.notify(
         "pyright-langserver not found (install pyright in the project .venv or globally)",

@@ -3,6 +3,20 @@
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 -- Add any additional autocmds here
 
+require("util.cgo").setup_autocmds()
+
+-- Re-run LSP FileType matching after Lazy finishes loading (init.lua enables servers early).
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LazyDone",
+  once = true,
+  callback = function()
+    vim.schedule(function()
+      vim.cmd.doautoall("nvim.lsp.enable FileType")
+    end)
+  end,
+  desc = "Attach LSP clients after Lazy startup",
+})
+
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -172,6 +186,12 @@ vim.api.nvim_create_autocmd("BufEnter", {
   callback = function()
     vim.keymap.set("i", "<C-e>k", ":=")
     vim.keymap.set("i", "<C-e>d", "<-")
+  end,
+})
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = { "*.ex", "*.exs" },
+  callback = function()
+    vim.keymap.set("i", "<C-e>d", "->")
   end,
 })
 vim.api.nvim_create_autocmd("BufEnter", {
