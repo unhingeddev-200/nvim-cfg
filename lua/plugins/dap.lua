@@ -113,5 +113,70 @@ return {
         stopAtBeginningOfMainSubprogram = false,
       },
     }
+
+    if vim.fn.executable("netcoredbg") == 1 then
+      dap.adapters.netcoredbg = {
+        type = "executable",
+        command = vim.fn.exepath("netcoredbg"),
+        args = { "--interpreter=vscode" },
+        options = { detached = false },
+      }
+
+      local barotrauma = require("util.barotrauma")
+      dap.configurations.cs = {
+        {
+          type = "netcoredbg",
+          name = "Barotrauma Client (Debug)",
+          request = "launch",
+          program = function()
+            local bin_dir = barotrauma.client_bin_dir("Debug")
+            local dll = bin_dir and (bin_dir .. "/Barotrauma.dll")
+            if dll and vim.fn.filereadable(dll) == 1 then
+              return dll
+            end
+            return vim.fn.input(
+              "Path to dll: ",
+              (bin_dir or vim.fn.getcwd()) .. "/Barotrauma.dll",
+              "file"
+            )
+          end,
+          cwd = function()
+            return barotrauma.client_bin_dir("Debug") or "${workspaceFolder}"
+          end,
+        },
+        {
+          type = "netcoredbg",
+          name = "Barotrauma Server (Debug)",
+          request = "launch",
+          program = function()
+            local root = barotrauma.root()
+            local suffix = vim.uv.os_uname().sysname == "Linux" and "Linux"
+              or vim.uv.os_uname().sysname == "Darwin" and "Mac"
+              or "Windows"
+            local dll = root and (root .. "/Barotrauma/bin/Debug" .. suffix .. "/net8.0/DedicatedServer.dll")
+            if dll and vim.fn.filereadable(dll) == 1 then
+              return dll
+            end
+            return vim.fn.input("Path to dll: ", (root or vim.fn.getcwd()) .. "/", "file")
+          end,
+          cwd = function()
+            local root = barotrauma.root()
+            local suffix = vim.uv.os_uname().sysname == "Linux" and "Linux"
+              or vim.uv.os_uname().sysname == "Darwin" and "Mac"
+              or "Windows"
+            return root and (root .. "/Barotrauma/bin/Debug" .. suffix .. "/net8.0") or "${workspaceFolder}"
+          end,
+        },
+        {
+          type = "netcoredbg",
+          name = "Launch .NET DLL",
+          request = "launch",
+          program = function()
+            return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/", "file")
+          end,
+          cwd = "${workspaceFolder}",
+        },
+      }
+    end
   end,
 }

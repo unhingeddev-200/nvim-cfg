@@ -298,13 +298,12 @@ vim.lsp.config("mdx-analyzer", {
 -- Disable the built-in SQL completion keymaps that use <C-c>
 vim.g.omni_sql_no_default_maps = 1
 
--- vim.lsp.config("csharp_ls", {
---   cmd = { "csharp-ls" },
---   filetypes = { "cs" },
---   init_options = {
---     AutomaticWorkspaceInit = false,
---   },
--- })
+vim.lsp.config("csharp_ls", {
+  filetypes = { "cs" },
+  init_options = {
+    AutomaticWorkspaceInit = true,
+  },
+})
 vim.lsp.config("kotlin-lsp", {
   cmd = { "kotlin-lsp.sh", "--stdio" },
   filetypes = { "kotlin" },
@@ -440,6 +439,8 @@ vim.lsp.config("systemd_lsp", {
   end,
 })
 
+vim.lsp.enable("csharp_ls", true)
+vim.lsp.enable("lemminx", true)
 vim.lsp.enable("kotlin-lsp", true)
 vim.lsp.enable("systemd_lsp", true)
 vim.lsp.enable("solidity_ls_nomicfoundation", true)

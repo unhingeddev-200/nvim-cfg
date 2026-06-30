@@ -25,7 +25,7 @@ return {
 
     require("tree-sitter-manager").setup({
       -- Parsers for nvim-ts-autotag in .astro files (astro grammar depends on html + html_tags).
-      ensure_installed = { "astro", "html", "html_tags" },
+      ensure_installed = { "astro", "html", "html_tags", "c_sharp", "xml" },
       -- border = nil, -- border style for the window (e.g. "rounded", "single"), if nil, use the default border style defined by 'vim.o.winborder'. See :h 'winborder' for more info.
       -- auto_install = false, -- if enabled, install missing parsers when editing a new file
       -- highlight = true, -- treesitter highlighting is enabled by default
@@ -69,6 +69,14 @@ return {
         pcall(vim.treesitter.start)
       end,
       desc = "Tree-sitter highlights (slang grammar) for HLSL / Shader Slang",
+    })
+
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = { "cs", "xml" },
+      callback = function()
+        pcall(vim.treesitter.start)
+      end,
+      desc = "Tree-sitter highlights for C# and XML",
     })
   end,
 }

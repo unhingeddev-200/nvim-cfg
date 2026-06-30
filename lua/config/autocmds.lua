@@ -80,6 +80,7 @@ vim.filetype.add({
   extension = {
     mdx = "mdx",
     slang = "shaderslang", -- slangd attaches as shaderslang / hlsl; matches tree-sitter in ts-manager
+    fx = "hlsl", -- Barotrauma MonoGame shaders (many files also set // vim:ft=hlsl)
   },
 })
 ---@param txt string[]

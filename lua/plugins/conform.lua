@@ -19,6 +19,7 @@ return {
       -- BIND zone files (see :h bindzone); requires `dnsfmt` on PATH (e.g. go install github.com/miekg/dnsfmt@latest)
       bindzone = { "dnsfmt" },
       python = { "ruff_format" },
+      cs = { "csharpier" },
     })
 
     opts.formatters = vim.tbl_deep_extend("force", opts.formatters or {}, {

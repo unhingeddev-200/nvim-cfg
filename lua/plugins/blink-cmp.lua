@@ -11,6 +11,9 @@ return {
     -- your own keymap.
     keymap = {
       preset = "default",
+      -- Explicit so LazyVim does not replace Tab with vim.snippet jumps (we use luasnip).
+      ["<Tab>"] = { "snippet_forward", "fallback" },
+      ["<S-Tab>"] = { "snippet_backward", "fallback" },
       ["<C-l>"] = { "accept" },
       ["<C-j>"] = { "select_next" },
       ["<C-k>"] = { "select_prev" },
